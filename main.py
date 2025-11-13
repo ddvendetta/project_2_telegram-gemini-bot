@@ -52,6 +52,55 @@ Your guidelines:
 # End of customization - Don't change below
 # ============================================================================
 
+# Define the hard character limit for each chunk (Keep this around 700-4000)
+MAX_CHUNK_LIMIT = 700 
+
+def chunk_response_for_telegram(gemini_text):
+    """
+    Splits the Gemini response into chunks of MAX_CHUNK_LIMIT characters.
+    It attempts to find the last newline or space to avoid breaking words/tags.
+    
+    Returns a list of strings (chunks).
+    """
+    
+    chunks = []
+    current_index = 0
+    
+    while current_index < len(gemini_text):
+        # Determine the maximum length for the current chunk
+        end_index = min(current_index + MAX_CHUNK_LIMIT, len(gemini_text))
+        
+        # Check if this is the last chunk
+        if end_index == len(gemini_text):
+            chunk = gemini_text[current_index:]
+        else:
+            # Try to find the last space or newline before the limit to avoid breaking a word or tag
+            break_point = gemini_text.rfind('\n\n', current_index, end_index)
+            if break_point == -1:
+                break_point = gemini_text.rfind(' ', current_index, end_index)
+            
+            # If no good break point is found, break exactly at the limit
+            if break_point <= current_index:
+                break_point = end_index
+
+            chunk = gemini_text[current_index:break_point]
+            end_index = break_point # Update end_index for the next iteration
+        
+        chunks.append(chunk.strip())
+        current_index = end_index
+        
+    # If the original response was chunked (i.e., multiple messages), 
+    # add a final message indicating the end of the full response.
+    if len(chunks) > 1:
+         # Use the first part of the original response to create a header for clarity
+        header = f"<b>Full Response (Part 1/{len(chunks)})</b>\n\n"
+        chunks[0] = header + chunks[0]
+        
+        # Add a footer to the last chunk
+        footer = "\n\n<i>[End of full response]</i>"
+        chunks[-1] = chunks[-1] + footer
+        
+    return [c for c in chunks if c] # Filter out any empty strings
 
 def get_gemini_response(user_message):
     """Get response from Gemini with Google Search grounding for internet access"""
@@ -142,10 +191,17 @@ if IS_GCF:
             print(f"✅ Gemini response received")
             print(f"   Response: {response_text[:200]}")
             
-            # Send response
-            print("Sending response to Telegram...")
+            # ⭐️ NEW STEP: Chunk the response
+            response_chunks = chunk_response_for_telegram(response_text)
+            
+            # Send response (Iterate through chunks)
+            print(f"Sending {len(response_chunks)} message(s) to Telegram...")
             if bot:
-                bot.send_message(chat_id, response_text)
+                for chunk in response_chunks:
+                    # Using parse_mode='HTML' as recommended
+                    bot.send_message(chat_id, chunk, parse_mode='HTML')
+                    # Note: telebot handles the necessary delays between messages.
+
                 print("✅ Message sent successfully!")
             else:
                 print("❌ Bot not initialized!")
@@ -174,9 +230,14 @@ else:
             response_text = get_gemini_response(user_message)
             print(f"Response: {response_text[:100]}")
             
-            # Send response
-            bot.send_message(chat_id, response_text)
-        
+            # ⭐️ NEW STEP: Chunk the response
+            response_chunks = chunk_response_for_telegram(response_text)
+            
+            # Send response (Iterate through chunks)
+            for chunk in response_chunks:
+                # Using parse_mode='HTML' as recommended
+                bot.send_message(chat_id, chunk, parse_mode='HTML')
+
         except Exception as e:
             print(f"Error handling message: {e}")
             bot.send_message(message.chat.id, f"Error: {str(e)}")
