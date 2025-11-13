@@ -1,0 +1,168 @@
+================================================================================
+PROJECT_2 - CLEANUP & ARCHIVAL COMPLETE
+================================================================================
+
+DATE: November 12, 2025
+TASK: Archive unrelated files and keep only essential GCF deployment files
+
+================================================================================
+RESULTS
+================================================================================
+
+✅ ESSENTIAL FILES KEPT IN ROOT (10 files)
+────────────────────────────────────────────────────────────────────────────
+
+Application Code:
+  • main.py (4.0K)                    - Local/VPS polling version
+  • main_cloud.py (4.0K)              - Google Cloud Functions webhook version
+
+Dependencies:
+  • requirements.txt (17B)            - Standard dependencies
+  • requirements_cloud.txt (72B)      - Cloud Functions dependencies
+
+Credentials:
+  • GEM_KEY (39B)                     - Gemini API key
+  • TG_KEY (48B)                      - Telegram bot token
+
+Deployment:
+  • deploy_cloud.sh (3.5K)            - Automated GCF deployment script
+
+Documentation:
+  • README.md (2.3K)                  - Project overview
+  • MASTER_GCF_GUIDE.md (9.5K)        - Complete GCF guide
+  • GCF_COMMANDS_REFERENCE.md (5.8K)  - Command reference
+
+System:
+  • PROJECT_STRUCTURE.md              - This project layout guide
+
+================================================================================
+📦 ARCHIVED FILES (29 files moved to archive/ folder)
+================================================================================
+
+Redundant Documentation (Moved to archive/):
+  ❌ DEPLOYMENT_COMPLETE.md
+  ❌ DEPLOYMENT_GUIDE.md
+  ❌ DEPLOYMENT_READY.md
+  ❌ DEPLOYMENT_SUMMARY.txt
+  ❌ DEPLOYMENT_SUCCESS.md
+  ❌ FILE_GUIDE.md
+  ❌ GCF_DEPLOYMENT_CHECKLIST.md
+  ❌ GCF_DEPLOYMENT_GUIDE.md
+  ❌ GCF_INDEX.md
+  ❌ GCF_PRE_DEPLOYMENT_CHECKLIST.md
+  ❌ GCF_QUICK_START.md
+  ❌ GCF_READY_TO_DEPLOY.md
+  ❌ PRE_DEPLOYMENT_CHECKLIST.md
+  ❌ QUICK_DEPLOY.md
+  ❌ QUICK_GCF_DEPLOY.md
+  ❌ READY_TO_DEPLOY.md
+  ❌ SINGAPORE_DEPLOYMENT.txt
+  ❌ START_GCF_DEPLOYMENT.md
+  ❌ START_HERE.md
+  ❌ WHAT_TO_EXPECT.md
+
+Duplicate Code Files (Moved to archive/):
+  ❌ cloud_functions.py
+  ❌ main_cloud_v2.py
+  ❌ main_polling.py
+  ❌ gemini.py
+
+Alternative Deployment Scripts (Moved to archive/):
+  ❌ deploy-to-gcf.sh
+  ❌ deploy.sh
+  ❌ setup-env.sh
+
+Platform-Specific Files (Moved to archive/):
+  ❌ telegram-bot.service             - Systemd (VPS only)
+  ❌ Procfile                         - Heroku/Railway only
+
+================================================================================
+📂 DIRECTORY STRUCTURE AFTER CLEANUP
+================================================================================
+
+Project_2/
+├── main.py                      ✅ Essential
+├── main_cloud.py                ✅ Essential (GCF)
+├── requirements.txt             ✅ Essential
+├── requirements_cloud.txt       ✅ Essential (GCF)
+├── GEM_KEY                      ✅ Essential
+├── TG_KEY                       ✅ Essential
+├── deploy_cloud.sh              ✅ Essential (GCF)
+├── README.md                    ✅ Essential
+├── MASTER_GCF_GUIDE.md          ✅ Essential
+├── GCF_COMMANDS_REFERENCE.md    ✅ Essential
+├── PROJECT_STRUCTURE.md         ✅ New guide
+├── PROJECT_CLEANUP_SUMMARY.txt  ✅ This file
+├── .gitignore                   ✅ Essential
+├── .github/                     ✅ Essential (CI/CD)
+├── venv/                        ✅ Python environment
+├── __pycache__/                 ✅ Python cache
+└── archive/                     📦 29 archived files
+
+================================================================================
+✅ DEPLOYMENT STATUS
+================================================================================
+
+Your bot is deployed to Google Cloud Functions:
+  • Region: Singapore (asia-southeast1)
+  • Status: ACTIVE ✅
+  • URL: https://telegram-webhook-7rw74zmghq-as.a.run.app
+  • Project: gen-lang-client-0715057599
+
+The deployment files you need to redeploy or modify:
+  ✅ main_cloud.py        - Edit bot logic here
+  ✅ requirements_cloud.txt - Add/remove packages here
+  ✅ deploy_cloud.sh      - Run this to deploy changes
+
+================================================================================
+🚀 NEXT STEPS FOR DEVELOPMENT
+================================================================================
+
+To make changes to your bot:
+
+1. Edit main_cloud.py (system prompt at lines 28-37)
+2. Update requirements if needed
+3. Deploy: ./deploy_cloud.sh gen-lang-client-0715057599 asia-southeast1 "TOKEN" "KEY"
+
+To test locally:
+1. Use main.py instead
+2. Set environment variables (TG_BOT_TOKEN, GEMINI_API_KEY)
+3. Run: python main.py
+
+To check deployment:
+1. View logs: gcloud functions logs read telegram_webhook --region asia-southeast1 --follow
+2. Check status: gcloud functions describe telegram_webhook --region asia-southeast1
+
+================================================================================
+📚 DOCUMENTATION KEPT
+================================================================================
+
+• README.md
+  └─ Project overview and quick start
+
+• MASTER_GCF_GUIDE.md
+  └─ Complete Google Cloud Functions deployment guide
+
+• GCF_COMMANDS_REFERENCE.md
+  └─ gcloud commands cheat sheet
+
+• PROJECT_STRUCTURE.md
+  └─ Guide to the project layout
+
+• PROJECT_CLEANUP_SUMMARY.txt
+  └─ This cleanup summary
+
+All other documentation has been archived.
+Refer to archive/ folder if you need any archived documentation later.
+
+================================================================================
+🎉 CLEANUP COMPLETE
+================================================================================
+
+Your Project_2 folder is now clean and organized!
+
+Essential Files:  10 files in root
+Archived Files:   29 files in archive/
+Directories:      3 (venv, __pycache__, archive)
+
+Ready for active development! 🚀
