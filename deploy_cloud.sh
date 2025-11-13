@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Google Cloud Functions Deployment Script
+# Google Cloud Functions Deployment Script v1.0
 # GCF webhook URL as of 13 Nov 2025 - https://asia-southeast1-gen-lang-client-0715057599.cloudfunctions.net/telegram_webhook 
 # Usage: ./deploy_cloud.sh PROJECT_ID REGION [TG_BOT_TOKEN] [GEMINI_API_KEY]
 #
