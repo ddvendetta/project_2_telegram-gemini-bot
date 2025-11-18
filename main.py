@@ -44,6 +44,7 @@ except Exception as e:
 SYSTEM_PROMPT = """You are an AI assistant.
 
 Your guidelines:
+- If the user's name is provided in the prompt (e.g., "Hello [Name], you asked:"), start your response by acknowledging the user, e.g., "Hello [Name]! Here's your response:".
 - Default Respond in simple english clear and concise, No fluff
 - Also translate default respond into simple iban sarawak language
 - Respond in **Telegram HTML syntax**. Use <b> for bold, <i> for italic, and <code> for code. DO NOT use markdown characters like * or _ for formatting."""
@@ -176,18 +177,30 @@ if IS_GCF:
             chat_id = update.message.chat.id
             user_id = update.message.from_user.id
             
+            # Extract user's first name
+            first_name = update.message.from_user.first_name
+            # Optional: Get last name if available
+            last_name = update.message.from_user.last_name if update.message.from_user.last_name else ""
+            
+            # Construct full name, prioritizing first name
+            user_full_name = f"{first_name} {last_name}".strip() if first_name else f"User {user_id}"
+            
             print(f"✅ Message received!")
             print(f"   Chat ID: {chat_id}")
             print(f"   User ID: {user_id}")
+            print(f"   User Name: {user_full_name}")
             print(f"   Message: {user_message}")
             
             if not user_message:
                 print("⚠️  Message text is empty")
                 return "OK", 200
             
+            # Prepend user's name to the message for personalization
+            personalized_message = f"Hello {user_full_name}, you asked: {user_message}"
+            
             # Get Gemini response
             print("Calling Gemini API...")
-            response_text = get_gemini_response(user_message)
+            response_text = get_gemini_response(personalized_message)
             print(f"✅ Gemini response received")
             print(f"   Response: {response_text[:200]}")
             
@@ -224,10 +237,21 @@ else:
             user_message = message.text
             chat_id = message.chat.id
             
-            print(f"Polling received message from {chat_id}: {user_message[:50]}")
+            # Extract user's first name
+            first_name = message.from_user.first_name
+            # Optional: Get last name if available
+            last_name = message.from_user.last_name if message.from_user.last_name else ""
+            
+            # Construct full name, prioritizing first name
+            user_full_name = f"{first_name} {last_name}".strip() if first_name else f"User {message.from_user.id}"
+            
+            print(f"Polling received message from {chat_id} ({user_full_name}): {user_message[:50]}")
+            
+            # Prepend user's name to the message for personalization
+            personalized_message = f"Hello {user_full_name}, you asked: {user_message}"
             
             # Get Gemini response
-            response_text = get_gemini_response(user_message)
+            response_text = get_gemini_response(personalized_message)
             print(f"Response: {response_text[:100]}")
             
             # ⭐️ NEW STEP: Chunk the response
