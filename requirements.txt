@@ -1,3 +1,4 @@
 pyTelegramBotAPI==4.29.1
 google-genai
 functions-framework>=3.0.0
+diagrams
