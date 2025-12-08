@@ -1,8 +1,13 @@
 import os
 import json
+import html
 import telebot
 from google import genai
 from google.genai import types
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Try to import functions_framework (only available in GCF environment)
 # Check for FORCE_POLLING env var to override GCF detection for local testing
@@ -19,8 +24,8 @@ except ImportError:
     IS_GCF = False
 
 # Initialize clients
-tg_token = os.environ.get("TG_BOT_TOKEN")
-gemini_api_key = os.environ.get("GEMINI_API_KEY")
+tg_token = os.environ.get("TG_KEY")
+gemini_api_key = os.environ.get("GEMINI_KEY")
 
 print(f"Initializing bot with token: {tg_token[:20] if tg_token else 'MISSING'}...")
 print(f"Initializing Gemini with key: {gemini_api_key[:20] if gemini_api_key else 'MISSING'}...")
@@ -121,7 +126,7 @@ def get_gemini_response(user_message):
         
         print("Calling generate_content with Google Search enabled...")
         response = gemini_client.models.generate_content(
-            model="gemini-2.0-flash",
+            model="gemini-2.0-flash-exp",
             contents=enhanced_prompt,
             config=config
         )
@@ -130,22 +135,31 @@ def get_gemini_response(user_message):
         print(f"Full response received: {len(full_response)} chars")
         return full_response if full_response else "No response generated"
     except Exception as e:
-        print(f"❌ Gemini error: {e}")
+        error_type = type(e).__name__
+        error_msg = str(e)
+        print(f"❌ Gemini error: {error_type}: {error_msg}")
         import traceback
         traceback.print_exc()
         # Fallback to non-search version
         print("Falling back to standard generation without search...")
         try:
             response_fallback = gemini_client.models.generate_content(
-                model="gemini-2.0-flash",
+                model="gemini-2.0-flash-exp",
                 contents=enhanced_prompt
             )
             # Non-streaming response, access text directly
             full_response = response_fallback.text if hasattr(response_fallback, 'text') else ""
             return full_response if full_response else "No response generated"
         except Exception as e2:
-            print(f"❌ Fallback also failed: {e2}")
-            return f"Error: Unable to generate response"
+            error_type2 = type(e2).__name__
+            error_msg2 = str(e2)
+            print(f"❌ Fallback also failed: {error_type2}: {error_msg2}")
+            # Return detailed error information with HTML escaping
+            detailed_error = f"<b>❌ Gemini API Error</b>\n\n"
+            detailed_error += f"<b>Primary Error ({html.escape(error_type)}):</b>\n<pre>{html.escape(error_msg[:500])}</pre>\n\n"
+            detailed_error += f"<b>Fallback Error ({html.escape(error_type2)}):</b>\n<pre>{html.escape(error_msg2[:500])}</pre>\n\n"
+            detailed_error += f"<i>Please check your API key, quota, and internet connection.</i>"
+            return detailed_error
 
 
 if IS_GCF:
@@ -264,7 +278,7 @@ else:
 
         except Exception as e:
             print(f"Error handling message: {e}")
-            bot.send_message(message.chat.id, f"Error: {str(e)}")
+            bot.send_message(message.chat.id, f"Error: {str(e)}", parse_mode='HTML')
     
     print("Starting polling mode...")
     bot.infinity_polling(timeout=30)

@@ -1,10 +1,10 @@
 #!/bin/bash
 
-# Google Cloud Functions Deployment Script v1.0
+# Google Cloud Functions Deployment Script v2.0
 # GCF webhook URL as of 13 Nov 2025 - https://asia-southeast1-gen-lang-client-0715057599.cloudfunctions.net/telegram_webhook 
 # Usage: ./deploy_cloud.sh PROJECT_ID REGION [TG_BOT_TOKEN] [GEMINI_API_KEY]
 #
-# TG_BOT_TOKEN and GEMINI_API_KEY can be provided as arguments or read from TG_KEY and GEM_KEY files.
+# TG_BOT_TOKEN and GEMINI_API_KEY can be provided as arguments or read from .env file.
 
 set -e
 
@@ -13,6 +13,22 @@ GREEN='\033[0;32m'
 BLUE='\033[0;34m'
 RED='\033[0;31m'
 NC='\033[0m' # No Color
+
+# Function to read from .env file
+read_env_file() {
+    if [ -f ".env" ]; then
+        # Read TG_KEY from .env
+        TG_BOT_TOKEN=$(grep "^TG_KEY=" .env | cut -d '=' -f2-)
+        # Read GEMINI_KEY from .env
+        GEMINI_API_KEY=$(grep "^GEMINI_KEY=" .env | cut -d '=' -f2-)
+        
+        if [ -n "$TG_BOT_TOKEN" ] && [ -n "$GEMINI_API_KEY" ]; then
+            echo -e "${BLUE}Credentials read from .env file.${NC}"
+            return 0
+        fi
+    fi
+    return 1
+}
 
 # Check arguments
 if [ $# -lt 2 ]; then
@@ -23,14 +39,16 @@ if [ $# -lt 2 ]; then
     echo "  ./deploy_cloud.sh my-telegram-bot us-central1 123456:ABC-DEF xyz_api_key"
     echo ""
     echo "Parameters:"
-    echo "  PROJECT_ID    - Your Google Cloud project ID"
-    echo "  REGION        - GCP region (us-central1, us-east1, europe-west1, etc.)"
-    echo "  TG_BOT_TOKEN  - (Optional) Your Telegram bot token from @BotFather. If not provided, will try to read from TG_KEY file."
-    echo "  GEMINI_API_KEY - (Optional) Your Gemini API key from Google AI Studio. If not provided, will try to read from GEM_KEY file."
+    echo "  PROJECT_ID     - Your Google Cloud project ID"
+    echo "  REGION         - GCP region (us-central1, us-east1, europe-west1, etc.)"
+    echo "  TG_BOT_TOKEN   - (Optional) Your Telegram bot token. If not provided, will read from .env file."
+    echo "  GEMINI_API_KEY - (Optional) Your Gemini API key. If not provided, will read from .env file."
     echo ""
     echo "Key Management Best Practice:"
-    echo "  Store your TG_BOT_TOKEN in a file named 'TG_KEY' and GEMINI_API_KEY in a file named 'GEM_KEY' in the same directory as this script."
-    echo "  Ensure these files are not committed to version control (e.g., add them to .gitignore)."
+    echo "  Store your credentials in a .env file with:"
+    echo "    TG_KEY=your_telegram_bot_token"
+    echo "    GEMINI_KEY=your_gemini_api_key"
+    echo "  The .env file should NOT be committed to version control."
     exit 1
 fi
 
@@ -38,29 +56,17 @@ PROJECT_ID=$1
 REGION=$2
 FUNCTION_NAME="telegram_webhook"
 
-# Try to read TG_BOT_TOKEN from file if not provided as argument
-if [ -z "$3" ]; then
-    if [ -f "TG_KEY" ]; then
-        TG_BOT_TOKEN=$(head -n 1 TG_KEY)
-        echo -e "${BLUE}TG_BOT_TOKEN read from TG_KEY file.${NC}"
-    else
-        echo -e "${RED}Error: TG_BOT_TOKEN not provided and TG_KEY file not found.${NC}"
+# Try to read from arguments first, then fall back to .env file
+if [ -z "$3" ] || [ -z "$4" ]; then
+    if ! read_env_file; then
+        echo -e "${RED}Error: Credentials not provided as arguments and .env file not found or incomplete.${NC}"
+        echo -e "${RED}Please either:"
+        echo -e "${RED}  1. Pass credentials as arguments: ./deploy_cloud.sh PROJECT_ID REGION TG_TOKEN GEMINI_KEY${NC}"
+        echo -e "${RED}  2. Create a .env file with TG_KEY and GEMINI_KEY${NC}"
         exit 1
     fi
 else
     TG_BOT_TOKEN=$3
-fi
-
-# Try to read GEMINI_API_KEY from file if not provided as argument
-if [ -z "$4" ]; then
-    if [ -f "GEM_KEY" ]; then
-        GEMINI_API_KEY=$(head -n 1 GEM_KEY)
-        echo -e "${BLUE}GEMINI_API_KEY read from GEM_KEY file.${NC}"
-    else
-        echo -e "${RED}Error: GEMINI_API_KEY not provided and GEM_KEY file not found.${NC}"
-        exit 1
-    fi
-else
     GEMINI_API_KEY=$4
 fi
 
@@ -99,7 +105,7 @@ gcloud functions deploy $FUNCTION_NAME \
   --region $REGION \
   --entry-point telegram_webhook \
   --source . \
-  --set-env-vars TG_BOT_TOKEN=$TG_BOT_TOKEN,GEMINI_API_KEY=$GEMINI_API_KEY \
+  --set-env-vars TG_KEY=$TG_BOT_TOKEN,GEMINI_KEY=$GEMINI_API_KEY \
   --timeout 60
 
 # Step 5: Get webhook URL

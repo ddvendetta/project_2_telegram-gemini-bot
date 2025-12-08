@@ -18,8 +18,6 @@ __pycache__/
 # Environment variables
 .env
 .env.local
-GEM_KEY
-TG_KEY
 
 # OS
 .DS_Store
