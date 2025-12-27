@@ -67,6 +67,39 @@ Your guidelines:
 - Respond in **Telegram HTML syntax**. Use <b> for bold, <i> for italic, and <code> for code."""
 ```
 
+## Gemini Integration
+
+The core logic for interacting with the Gemini API is in `main.py`. The final, stable implementation uses the modern `google-genai` library.
+
+Google Search grounding is explicitly enabled using the `config` parameter, which requires importing `types` from the library. This was the key to fixing the tool-related errors.
+
+```python
+# main.py snippet
+
+# Add the necessary import at the top of the file
+from google.genai import types
+
+# ...
+
+# The final, working API call inside the get_gemini_response function
+def get_gemini_response(chat_id, user_message):
+    # ...
+    client = genai.Client(api_key=gemini_api_key)
+    
+    response = client.models.generate_content(
+        model="gemini-2.5-flash-lite",
+        contents=enhanced_prompt,
+        config=types.GenerateContentConfig(
+            tools=[
+                types.Tool(
+                    google_search=types.GoogleSearch()
+                )
+            ]
+        )
+    )
+    # ...
+```
+
 ## How It Works
 
 1. User sends a message to the bot on Telegram
@@ -123,17 +156,17 @@ The diagrams feature:
 
 ```
 .
-├── main.py                          # Main bot code with dual mode support
-├── generate_diagram.py              # Architecture diagram generator
+├── main.py                          # Main application code for the bot
+├── deploy_cloud.sh                  # Deployment script for Google Cloud Functions
 ├── requirements.txt                 # Python dependencies
-├── .env                             # Your credentials (gitignored)
-├── .env.example                     # Template for credentials
-├── run_local.sh                     # Local testing script
-├── deploy_cloud.sh                  # Google Cloud Functions deployment
-├── ENV_SETUP.md                     # Detailed environment setup guide
-├── telegram_bot_architecture.png    # Architecture diagram (top-down)
-├── telegram_bot_architecture_lr.png # Architecture diagram (left-right)
-└── telegram_bot_linear.png          # Linear flow diagram
+├── .env.example                     # Example environment file
+├── .gitignore                       # Files and directories ignored by Git
+├── generate_diagram.py              # Script to generate architecture diagrams
+├── ENV_SETUP.md                     # Guide for environment setup
+├── PROJECT_STRUCTURE.md             # Detailed project structure document
+├── README.md                        # This file
+├── *.png                            # Diagram images
+└── archive/                         # Contains old and deprecated files
 ```
 
 ## Deployment Options
@@ -169,13 +202,19 @@ For Railway, Heroku, or VPS deployment, set these environment variables:
 
 ## Environment Variables
 
-The bot uses **python-dotenv** for secure credential management:
+The bot uses **python-dotenv** for secure credential management during local development.
 
-- **Local**: Automatically loads from `.env` file
-- **Cloud**: Deploy script reads from `.env` and sets GCP environment variables
-- **Security**: `.env` is gitignored and never committed
+### `.env` file
+Create a `.env` file for your local environment with the following content:
+```env
+TG_KEY=your_telegram_bot_token
+GEMINI_KEY=your_gemini_api_key
+```
 
-See `ENV_SETUP.md` for detailed setup instructions.
+### Cloud Deployment Key Management
+The `deploy_cloud.sh` script reads these values from your local `.env` file and correctly configures the Google Cloud Function's environment variables.
+
+**Important:** The deployment script reads `GEMINI_KEY` from `.env` but sets it as `GOOGLE_API_KEY` in the cloud environment. The Python code (`main.py`) is written to read `GOOGLE_API_KEY` to ensure it works correctly when deployed.
 
 ## Development
 

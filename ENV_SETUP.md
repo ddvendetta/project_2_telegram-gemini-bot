@@ -30,22 +30,21 @@ pip install -r requirements.txt
 
 ### 3. Run Locally
 
+To run the bot in local polling mode, run this command in your terminal:
 ```bash
-./run_local.sh
+export FORCE_POLLING=true
+python main.py
 ```
-
-## Environment Variables
-
-| Variable | Description | Example |
-|----------|-------------|---------|
-| `TG_KEY` | Telegram Bot Token from @BotFather | `123456789:ABCdefGHIjkl...` |
-| `GEMINI_KEY` | Google Gemini API Key | `AIzaSy...` |
 
 ## How It Works
 
-- **Local Development**: The `python-dotenv` package automatically loads variables from `.env` file
-- **Cloud Deployment**: The `deploy_cloud.sh` script reads from `.env` and sets them as GCP environment variables
-- **Security**: The `.env` file is gitignored and never committed to version control
+- **Local Development**: When you run `python main.py`, the `python-dotenv` package automatically loads variables from your `.env` file.
+- **Cloud Deployment**: The `deploy_cloud.sh` script reads `TG_KEY` and `GEMINI_KEY` from your local `.env` file and sets them as environment variables in the Google Cloud Function.
+- **Security**: The `.env` file is gitignored and should never be committed to version control.
+
+## Cloud Environment Note
+
+**Important:** The deployment script reads the `GEMINI_KEY` from your `.env` file but sets it as `GOOGLE_API_KEY` in the cloud environment. The Python code (`main.py`) is written to read `GOOGLE_API_KEY`, ensuring consistency with the deployed environment and industry standards. This is a critical detail for understanding how the deployed application is configured.
 
 ## Files
 

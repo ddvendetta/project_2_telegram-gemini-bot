@@ -8,6 +8,8 @@ env/
 .idea/
 *.swp
 *.swo
+*.code-workspace
+Project_2.code-workspace
 
 # Python
 __pycache__/

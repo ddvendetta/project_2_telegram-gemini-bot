@@ -1,133 +1,62 @@
-# Project Structure - Essential Files Only
+# Project Structure
 
-## 📂 Current Directory Structure
+This document outlines the current, simplified structure of the project.
+
+## 📂 File System
+
+The project has been streamlined to use a single `main.py` for both local polling and cloud deployment. The `archive/` directory holds legacy files that are no longer in use.
 
 ```
-Project_2/
-├── 🚀 PRODUCTION FILES
-│   ├── main.py                    (Local/VPS polling version)
-│   ├── main_cloud.py              (Google Cloud Functions webhook version)
-│   ├── requirements.txt           (Standard dependencies)
-│   └── requirements_cloud.txt     (Cloud Functions dependencies)
-│
-├── 🔐 CREDENTIALS
-│   ├── GEM_KEY                    (Gemini API key)
-│   └── TG_KEY                     (Telegram bot token)
+.
+├── main.py                          # Main application code for the bot.
+├── deploy_cloud.sh                  # Deployment script for Google Cloud Functions.
+├── requirements.txt                 # Python dependencies for the project.
+├── .env.example                     # Example environment file for local development.
+├── .gitignore                       # Specifies intentionally untracked files to ignore.
+├── generate_diagram.py              # Script to generate architecture diagrams.
 │
 ├── 📖 DOCUMENTATION
-│   ├── README.md                  (Project overview)
-│   ├── MASTER_GCF_GUIDE.md        (Complete GCF deployment guide)
-│   └── GCF_COMMANDS_REFERENCE.md  (Command cheat sheet)
+│   ├── README.md                    # Main project overview and setup guide.
+│   ├── ENV_SETUP.md                 # Detailed guide for environment variable setup.
+│   └── PROJECT_STRUCTURE.md         # This file.
 │
-├── 🚀 DEPLOYMENT
-│   └── deploy_cloud.sh            (Automated GCF deployment script)
-│
-├── 📦 ENVIRONMENT
-│   ├── venv/                      (Python virtual environment)
-│   └── __pycache__/               (Python cache)
-│
-└── 📦 ARCHIVE (legacy/redundant files)
-    └── archive/                   (29 archived files)
+└── 📦 ARCHIVE
+    └── archive/                     # Contains numerous old and deprecated files.
 ```
 
 ---
 
-## ✅ Essential Production Files
+## ✅ Essential Files
 
 ### Application Code
-- **`main.py`** (4.0K) - Polling-based bot for local testing and VPS deployment
-- **`main_cloud.py`** (4.0K) - Webhook-based bot for Google Cloud Functions
+- **`main.py`**: The single source of truth for the bot's logic. It operates in two modes:
+    - **Local Polling Mode**: Activated by setting the `FORCE_POLLING=true` environment variable.
+    - **Webhook Mode**: The default mode when deployed to Google Cloud Functions.
 
-### Dependencies
-- **`requirements.txt`** - Standard dependencies (pyTelegramBotAPI, google-genai)
-- **`requirements_cloud.txt`** - GCF dependencies (adds functions-framework)
+### Deployment & Dependencies
+- **`deploy_cloud.sh`**: The script used to deploy the application to Google Cloud Functions.
+- **`requirements.txt`**: Contains all necessary Python packages, including `google-genai`, `pyTelegramBotAPI`, and `functions-framework`.
 
-### Credentials
-- **`GEM_KEY`** - Your Gemini API key (39 bytes)
-- **`TG_KEY`** - Your Telegram bot token (48 bytes)
-
-### Deployment
-- **`deploy_cloud.sh`** (3.5K) - One-command deployment script for GCF
+### Configuration
+- **`.env.example`**: A template for the `.env` file, which is used for local development. Your `.env` file (which is gitignored) should contain your `TG_KEY` and `GEMINI_KEY`.
+- **`.gitignore`**: Ensures that sensitive files (like `.env`) and unnecessary directories (like `.venv` and `__pycache__`) are not committed to version control.
 
 ### Documentation
-- **`README.md`** - Project overview
-- **`MASTER_GCF_GUIDE.md`** (9.5K) - Complete deployment guide
-- **`GCF_COMMANDS_REFERENCE.md`** (5.8K) - Command reference
+- **`README.md`**: The primary guide for getting started with the project.
+- **`ENV_SETUP.md`**: A detailed guide on how to set up your environment variables correctly.
+- **`PROJECT_STRUCTURE.md`**: This file, providing an overview of the project's layout.
 
 ---
 
-## 📦 What Was Archived
+## 🎯 Development Workflow
 
-**29 files moved to `archive/` folder:**
+1.  **Local Development**:
+    *   Create and populate your `.env` file.
+    *   Set the `FORCE_POLLING=true` environment variable.
+    *   Run `python main.py` to test the bot locally.
+2.  **Making Changes**:
+    *   Modify `main.py` with your desired changes (e.g., update the `SYSTEM_PROMPT`).
+3.  **Deploying Updates**:
+    *   Run `./deploy_cloud.sh YOUR_PROJECT_ID YOUR_REGION` to deploy the latest version to the cloud. The script will use the credentials from your `.env` file.
 
-- Redundant documentation guides (16 files)
-- Duplicate code files (4 files)
-- Alternative deployment scripts (5 files)
-- Service configuration files (2 files)
-- Other configuration files (2 files)
-
-**Examples of archived files:**
-- `DEPLOYMENT_COMPLETE.md`
-- `GCF_DEPLOYMENT_GUIDE.md`
-- `START_HERE.md`
-- `cloud_functions.py`
-- `main_polling.py`
-- `Procfile` (Heroku/Railway)
-- `telegram-bot.service` (VPS systemd)
-- `deploy.sh` (alternative deployment)
-
----
-
-## 🎯 Quick Reference for Development
-
-### Run Locally (Testing)
-```bash
-source venv/bin/activate
-export TG_BOT_TOKEN="your_token"
-export GEMINI_API_KEY="your_key"
-python main.py
-```
-
-### Deploy to Google Cloud Functions
-```bash
-./deploy_cloud.sh your-project asia-southeast1 "YOUR_TOKEN" "YOUR_KEY"
-```
-
-### Check GCF Status
-```bash
-source /opt/homebrew/share/google-cloud-sdk/path.zsh.inc
-gcloud functions describe telegram_webhook --region asia-southeast1
-gcloud functions logs read telegram_webhook --region asia-southeast1 --follow
-```
-
----
-
-## 📝 For Refinements & Updates
-
-To make changes to your application:
-
-1. **Edit bot logic**: Modify `main_cloud.py` (lines 28-37 for system prompt)
-2. **Update dependencies**: Edit `requirements_cloud.txt` and add packages
-3. **Deploy changes**: Run `./deploy_cloud.sh`
-4. **Test locally**: Use `main.py` with polling
-
----
-
-## 🔄 File Organization Summary
-
-| Type | Files | Location |
-|------|-------|----------|
-| Application Code | 2 | Root (`.py`) |
-| Dependencies | 2 | Root (`.txt`) |
-| Deployment Script | 1 | Root (`.sh`) |
-| Credentials | 2 | Root (key files) |
-| Documentation | 3 | Root (`.md`) |
-| Python Environment | 1 | `venv/` |
-| Legacy Files | 29 | `archive/` |
-
----
-
-**Your project is now clean and organized for active development! 🎉**
-
-All essential files for the GCF deployment and continued refinement are in the root directory.
-Archived files are safely stored in the `archive/` subfolder if you need them later.
+This simplified structure makes the project easier to maintain and understand.
