@@ -1,5 +1,4 @@
-pyTelegramBotAPI==4.29.1
+pyTelegramBotAPI==4.14.0
 google-genai
 functions-framework>=3.0.0
-diagrams
 python-dotenv

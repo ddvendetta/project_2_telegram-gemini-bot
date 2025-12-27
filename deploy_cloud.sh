@@ -105,7 +105,7 @@ gcloud functions deploy $FUNCTION_NAME \
   --region $REGION \
   --entry-point telegram_webhook \
   --source . \
-  --set-env-vars TG_KEY=$TG_BOT_TOKEN,GEMINI_KEY=$GEMINI_API_KEY \
+  --set-env-vars TG_KEY=$TG_BOT_TOKEN,GOOGLE_API_KEY=$GEMINI_API_KEY \
   --timeout 60
 
 # Step 5: Get webhook URL
