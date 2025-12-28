@@ -144,7 +144,7 @@ def get_gemini_response(chat_id, user_message):
         
         print("Calling generate_content (automatic grounding)...")
         response = client.models.generate_content(
-            model="gemini-2.5-flash-lite",
+            model="gemini-2.5-flash",
             contents=enhanced_prompt,
             config=types.GenerateContentConfig(
                 tools=[
